@@ -3,6 +3,7 @@ import CADD_prescored as cp
 import os
 import numpy as np
 import argparse
+import re
 
 def input_read():
   parser = argparse.ArgumentParser(description="""
@@ -10,14 +11,13 @@ def input_read():
   query: this mode can be used to query the table for the scores.""")#TODO remove the setup setp if it is unlikely to have many datasets from the same setup.
   parser.add_argument('score_folder', metavar='<folder_containing_scores>', help='path to the folder containing scores *local path')
   parser.add_argument('-s', '--setup', action='store_true', help='Run once for the dataset to setup the class object for looking up')
-  parser.add_argument('-q', '--query', metavar='<mutation_file.csv>', nargs=1, help='-q or --query flag should be followed by the mutation data file <mute_file.vcf>', default=False)
+  parser.add_argument('-q', '--query', metavar='<mutation_file.vcf>', nargs=1, help='-q or --query flag should be followed by the mutation data file <mute_file.vcf>', default=False)
   args = parser.parse_args()
-  print args
   return args
 
 def main():
   args = input_read()
-  data_file = args.query
+  data_file = args.query[0]
   score_file = args.score_folder
   forward_backward_dic = {'.':'.', 'A':'T', 'C':'G', 'T':'A', 'G':'C'}
 
@@ -41,9 +41,13 @@ def main():
     # Generate the relevant parts of the scores
     tbx.local_table(chr, start, end)
     # query the database
-    [tbx.query(item[1], forward_backward_dic.get(item[3], item[3]), forward_backward_dic.get(item[4], item[4])) for item in data ]
+    scores = [tbx.query(item[1], forward_backward_dic.get(item[3], item[3]), forward_backward_dic.get(item[4], item[4])) for item in data ]
+    # Find the file name
+    file_name = re.search(r"/(\w+).vcf", data_file).groups()[0]
     # write the file.
-    #TODO
+    results_fp = open(PWD+'/../results/CADD_'+file_name+'.txt', 'w')
+    results_fp.write(str(scores))
+    results_fp.close()
 
 if __name__=='__main__':
   main()
