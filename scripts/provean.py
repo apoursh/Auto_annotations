@@ -22,7 +22,6 @@ def input_read():
   parser.add_argument('mut_file', metavar='<mutation_file.csv>', nargs='?',help='later', action=CheckExt({'csv'}), default='DeFaUlT.csv')
 
   args = parser.parse_args()
-  print args
   return args
 
 def amino_to_num(A):
