@@ -34,7 +34,7 @@ def main():
     PS = pv.Provean_Score(inputs.score_file)
     PS.save_position()
 
-  if not inputs.make_dic and inputs.score is None:
+  if not inputs.make_dic and not inputs.score is None:
     PS = pv.Provean_Score(inputs.score_file)
     protein_name =  inputs.score
     data_file = inputs.mut_file
@@ -42,13 +42,13 @@ def main():
     data = data_fp.read().splitlines()
     data_fp.close()
     data = np.array([row.split(',') for row in data])
-    seek_dic=pickle.load(open(inputs[0]+'.p', 'rb'))
+    seek_dic=pickle.load(open(inputs.score_file+'.p', 'rb'))
     list = np.array(PS.load_pos(seek_dic[protein_name],protein_name))
     list[:,22] = [item[:-1] for item in list[:,22]]
     position = data[:,6]
     mut = amino_to_num(data[:,9])
     file_name = re.search(r"/(\w+).csv", data_file).groups()[0]
-    results_fp = open('../results/provean_'+file_name+'.txt', 'w')
+    results_fp = open('results/provean_'+file_name+'.txt', 'w')
     results_fp.write(str([list[int(position[i])-1][mut[i]] for i in range(len(position))]))
     results_fp.close()
 
